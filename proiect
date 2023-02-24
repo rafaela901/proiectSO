@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+
+#==================================
+#Nume: Donea Isabela-Rafaela	
+#Grupa:1014
+ 
+function check_user_id(){  ## functie care cauta utilizatori
+read -rp "Enter user name: " user_name
+    if [ -z "$user_name" ] ## Daca se introduce empty string va afisa un mesaj corespunzator
+    then
+        echo "Enter a non-empty username"    
+        continue
+    fi
+
+    if grep -q "^$user_name:" /etc/passwd ## Cauta utilizator si afiseaza mesajul corespunzator
+    then
+        echo "$user_name FOUND"
+        
+    else
+        echo "$user_name NOT FOUND!" >&2
+        
+    fi
+}
+function check_shell(){
+	cat /etc/passwd
+}
+
+function add_user(){ ##functie pentru crearea unui nou utilizator
+if [ $(id -u) -eq 0 ]; then
+	read -p "Enter username : " username
+	read -s -p "Enter password : " password
+	egrep "^$username" /etc/passwd >/dev/null
+	if [ $? -eq 0 ]; then
+		echo "$username exists!" ## Daca user-ul exista functia nu va crea nimic.
+		exit 1
+	else
+		pass=$(perl -e 'print crypt($ARGV[0], "password")' $password)
+		useradd -m -p "$pass" "$username"
+		[ $? -eq 0 ] && echo "User has been added to system!" || echo "Failed to add a user!"
+	fi
+else
+	echo "Only root may add a user to the system." 
+	exit 2
+fi
+
+}
+
+function delete_user(){ ## functie pentru stergerea userului curent 
+	echo "Doriti sa stergeti home-ul?"
+	echo " 1. DA"
+	echo " 2. NU"
+read answer
+if [$answer = 1]
+then 
+ userdel -r username ##stergere user + home
+else
+userdel username ## stergere user
+fi
+}
+
+
+
+
+while true ## Meniul pentru selectarea optiunilor.
+do
+clear
+
+echo "1. Vizualizarea numelui de utilizator de pe sistem care are userid-ul specificat de la tastatură."
+echo "2. Afișare ce utilizatori au shell-ul implicit bash și ce utilizatori au shell-ul sh."
+echo "3. Adaugare user nou."
+echo "4. Stergerea unui utilizator – se întreabă și dacă se dorește ștergerea home-ul său."
+echo "q. QUIT."
+echo -e "\n"
+echo -e "Selectati optiunea \c"
+read answer 
+
+case $answer in
+	1)
+		check_user_id;;
+	2) 
+		check_shell;;
+	3)
+		add_user;;
+	4)	
+		delete_user;;
+	q)	
+		exit;;
+esac
+echo -e "Apasati enter pentru a continua \c"
+read input
+done
