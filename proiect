@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-#==================================
-#Nume: Donea Isabela-Rafaela	
-#Grupa:1014
+
  
 function check_user_id(){  ## functie care cauta utilizatori
 read -rp "Enter user name: " user_name
